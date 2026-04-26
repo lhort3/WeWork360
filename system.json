@@ -1,7 +1,7 @@
 {
  "redirect": { "enabled": false, "url": "https://example.com" },
  "status": "open",
- "webhook": "YOUR_DISCORD_WEBHOOK_URL",
+ "webhook": "https://discord.com/api/webhooks/1498045163765895350/h7Od4FW4cgtDps81ip0r-P_Xdud6lIuiv-C9YNEtZxesXS6BvHN_rdhJjh9HWB9e8iLs",
 
  "prices": {
   "MATHS": 100,
