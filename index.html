@@ -12,7 +12,8 @@ button:hover { background:#d4d4d4; }
 .header { text-align:center; font-size:18px; margin-bottom:10px; font-weight:bold; }
 .screen { display:none; }
 .grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.option { padding:20px; background:#eeeeee; border:1px solid #bbb; text-align:center; cursor:pointer; }
+.option { padding:10px; background:#eeeeee; border:1px solid #bbb; text-align:center; cursor:pointer; }
+.option img { width:100%; height:60px; object-fit:cover; margin-bottom:5px; }
 .option:hover { background:#e0e0e0; }
 .task { padding:6px; margin:4px 0; border:1px solid #aaa; font-size:13px; }
 .pending { background:#ffd27f; }
@@ -38,10 +39,10 @@ hr { border:none; border-top:1px solid #ccc; margin:10px 0; }
 <div class="header">CURRENT BALANCE: <span id="balance"></span> CREDITS</div>
 <hr>
 <div class="grid">
-<div class="option" onclick="goScreen('taskScreen')">[IMG]<br>New Task</div>
-<div class="option" onclick="loadTasks()">[IMG]<br>View Tasks</div>
-<div class="option" onclick="goScreen('topupScreen')">[IMG]<br>Top Up</div>
-<div class="option" onclick="goScreen('changeScreen')">[IMG]<br>Change Login</div>
+<div class="option" onclick="goScreen('taskScreen')"><img src="https://example.com/newtask.png">New Task</div>
+<div class="option" onclick="loadTasks()"><img src="https://example.com/pasttasks.png">View Tasks</div>
+<div class="option" onclick="goScreen('topupScreen')"><img src="https://example.com/topup.png">Top Up</div>
+<div class="option" onclick="goScreen('changeScreen')"><img src="https://example.com/changelogin.png">Change Login</div>
 </div>
 </div>
 
@@ -103,16 +104,17 @@ fetch('https://raw.githubusercontent.com/lhort3/WeWork360/main/system.json')
  if(data.status==='closed'){
   document.body.innerHTML="<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
  }
-});
+})
+.catch(()=>alert('Failed to load system.json'));
 
 function login(){
- if(!data){ alert('System not loaded'); return; }
- let u=user.value;
- let p=pass.value;
+ if(!data){ alert('System not loaded yet'); return; }
+ let u=document.getElementById('user').value;
+ let p=document.getElementById('pass').value;
  let found=data.users.find(x=>x.username===u && x.password===p);
  if(!found){ alert('Invalid login'); return; }
  currentUser=found;
- balance.innerText=found.balance;
+ document.getElementById('balance').innerText=found.balance;
  goScreen('menuScreen');
 }
 
@@ -121,34 +123,8 @@ function assignTask(){
  if(!plat){ alert('Select platform'); return; }
  let price=data.prices[plat];
  if(currentUser.balance<price){ alert('Not enough'); return; }
-
- // confirmation popup
  let confirmAssign = confirm(`This will deduct ${price} CREDITS. Continue?`);
  if(!confirmAssign) return;
-
- let before=currentUser.balance;
- currentUser.balance-=price;
- let after=currentUser.balance;
-
- currentUser.tasks.push({name:plat,before:before,after:after,status:'pending'});
- balance.innerText=currentUser.balance;
-
- fetch(data.webhook,{
-  method:'POST',
-  headers:{'Content-Type':'application/json'},
-  body:JSON.stringify({content:`New task ${plat} from ${currentUser.username}`})
- });
-
- alert('Task sent');
-}
- let price=data.prices[plat];
- if(currentUser.balance<price){ alert('Not enough'); return; }
- let before=currentUser.balance;
- currentUser.balance-=price;
- let after=currentUser.balance;
- let plat=platform.value;
- let price=data.prices[plat];
- if(currentUser.balance<price){ alert('Not enough'); return; }
  let before=currentUser.balance;
  currentUser.balance-=price;
  let after=currentUser.balance;
@@ -170,7 +146,7 @@ function loadTasks(){
  currentUser.tasks.forEach((t,i)=>{
  let urge='';
  if(t.status==='pending'){
- urge=`<button onclick="urgeTask(${i})">Urge</button>`;
+ urge=`<button onclick="urgeTask(${i})">Urge assignment</button>`;
  }
  html+=`<div class="task ${t.status}">
  <b>${t.name}</b><br>
