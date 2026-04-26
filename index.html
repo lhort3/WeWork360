@@ -10,8 +10,9 @@ input, select { width:100%; margin:6px 0; padding:6px; border:1px solid #999; }
 button { width:100%; padding:6px; background:#e5e5e5; border:1px solid #888; cursor:pointer; }
 button:hover { background:#d4d4d4; }
 .header { text-align:center; font-size:18px; margin-bottom:10px; font-weight:bold; }
-.menu { display:none; }
-.option { margin:6px 0; padding:8px; background:#eeeeee; border:1px solid #bbb; cursor:pointer; }
+.screen { display:none; }
+.grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.option { padding:20px; background:#eeeeee; border:1px solid #bbb; text-align:center; cursor:pointer; }
 .option:hover { background:#e0e0e0; }
 .task { padding:6px; margin:4px 0; border:1px solid #aaa; font-size:13px; }
 .pending { background:#ffd27f; }
@@ -22,181 +23,174 @@ hr { border:none; border-top:1px solid #ccc; margin:10px 0; }
 </head>
 <body>
 
-<div class="container" id="loginBox">
+<!-- LOGIN SCREEN -->
+<div class="container screen" id="loginScreen" style="display:block">
 <div class="header">WeWork360 Control Panel</div>
 <img src="logo.png" width="100%">
 <hr>
 <input type="text" id="user" placeholder="Username">
 <input type="password" id="pass" placeholder="Password">
-<label class="small"><input type="checkbox"> Remember me</label>
 <button onclick="login()">Login</button>
 </div>
 
-<div class="container menu" id="menuBox">
-<div class="header">CURRENT BALANCE: £<span id="balance"></span></div>
+<!-- MENU SCREEN -->
+<div class="container screen" id="menuScreen">
+<div class="header">CURRENT BALANCE: <span id="balance"></span> CREDITS</div>
 <hr>
+<div class="grid">
+<div class="option" onclick="goScreen('taskScreen')">[IMG]<br>New Task</div>
+<div class="option" onclick="loadTasks()">[IMG]<br>View Tasks</div>
+<div class="option" onclick="goScreen('topupScreen')">[IMG]<br>Top Up</div>
+<div class="option" onclick="goScreen('changeScreen')">[IMG]<br>Change Login</div>
+</div>
+</div>
 
-<div class="option" onclick="showTask()">[IMG] New Task</div>
-<div class="option" onclick="viewTasks()">[IMG] View Tasks</div>
-<div class="option" onclick="topup()">[IMG] Top Up</div>
-<div class="option" onclick="changeLogin()">[IMG] Change Login</div>
-
+<!-- NEW TASK SCREEN -->
+<div class="container screen" id="taskScreen">
+<div class="header">New Task</div>
 <hr>
-<div id="content" class="small"></div>
+<select id="platform" onchange="updatePrice()">
+<option value="">Select Platform</option>
+<option>MATHS</option>
+<option>READER</option>
+<option>SCIENCE</option>
+</select>
+<div id="priceInfo" class="small">Select a platform to see cost</div>
+<button onclick="assignTask()">Assign Task</button>
+<button onclick="goScreen('menuScreen')">Back</button>
+</div>
+
+<!-- TASK VIEW SCREEN -->
+<div class="container screen" id="viewScreen">
+<div class="header">Task History</div>
+<hr>
+<div id="taskList"></div>
+<button onclick="goScreen('menuScreen')">Back</button>
+</div>
+
+<!-- TOPUP SCREEN -->
+<div class="container screen" id="topupScreen">
+<div class="header">Top Up</div>
+<hr>
+<div>Please contact original service provider.</div>
+<button onclick="goScreen('menuScreen')">Back</button>
+</div>
+
+<!-- CHANGE LOGIN SCREEN -->
+<div class="container screen" id="changeScreen">
+<div class="header">Change Login</div>
+<hr>
+<input id="newUser" placeholder="New Username">
+<input id="newPass" placeholder="New Password">
+<button onclick="sendChange()">Submit</button>
+<button onclick="goScreen('menuScreen')">Back</button>
 </div>
 
 <script>
-let data = null;
-let currentUser = null;
+let data=null;
+let currentUser=null;
 
-// ✅ USE RAW LINK (important)
+function goScreen(id){
+ document.querySelectorAll('.screen').forEach(s=>s.style.display='none');
+ document.getElementById(id).style.display='block';
+}
+
 fetch('https://raw.githubusercontent.com/lhort3/WeWork360/main/system.json')
-.then(r => r.json())
-.then(j => {
- data = j;
-
- if(data.redirect.enabled){
-  window.location = data.redirect.url;
-  return;
+.then(r=>r.json())
+.then(j=>{
+ data=j;
+ if(data.redirect.enabled){ window.location=data.redirect.url; }
+ if(data.status==='closed'){
+  document.body.innerHTML="<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
  }
-
- if(data.status === "closed"){
-  document.body.innerHTML = "<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
- }
-})
-.catch(err => {
- console.error(err);
- alert("Failed to load system.json");
 });
 
 function login(){
- let u = document.getElementById('user').value;
- let p = document.getElementById('pass').value;
-
- if(!data){
-  alert("System not loaded yet");
-  return;
- }
-
- let user = data.users.find(x => x.username === u && x.password === p);
- if(!user){
-  alert("Invalid login");
-  return;
- }
-
- currentUser = user;
-
- document.getElementById('balance').innerText = user.balance;
- document.getElementById('loginBox').style.display = 'none';
- document.getElementById('menuBox').style.display = 'block';
-}
-
-function showTask(){
- document.getElementById('content').innerHTML = `
- <b>New Task</b><hr>
- <select id="platform">
-  <option>MATHS</option>
-  <option>READER</option>
-  <option>SCIENCE</option>
- </select>
- <div class="small">Price auto deducted</div>
- <button onclick="assignTask()">Assign Task</button>
- `;
+ if(!data){ alert('System not loaded'); return; }
+ let u=user.value;
+ let p=pass.value;
+ let found=data.users.find(x=>x.username===u && x.password===p);
+ if(!found){ alert('Invalid login'); return; }
+ currentUser=found;
+ balance.innerText=found.balance;
+ goScreen('menuScreen');
 }
 
 function assignTask(){
- let plat = document.getElementById('platform').value;
- let price = data.prices[plat];
+ let plat=platform.value;
+ if(!plat){ alert('Select platform'); return; }
+ let price=data.prices[plat];
+ if(currentUser.balance<price){ alert('Not enough'); return; }
 
- if(currentUser.balance < price){
-  alert("Not enough balance top up first !!!");
-  return;
+ // confirmation popup
+ let confirmAssign = confirm(`This will deduct ${price} CREDITS. Continue?`);
+ if(!confirmAssign) return;
+
+ let before=currentUser.balance;
+ currentUser.balance-=price;
+ let after=currentUser.balance;
+
+ currentUser.tasks.push({name:plat,before:before,after:after,status:'pending'});
+ balance.innerText=currentUser.balance;
+
+ fetch(data.webhook,{
+  method:'POST',
+  headers:{'Content-Type':'application/json'},
+  body:JSON.stringify({content:`New task ${plat} from ${currentUser.username}`})
+ });
+
+ alert('Task sent');
+}
+ let price=data.prices[plat];
+ if(currentUser.balance<price){ alert('Not enough'); return; }
+ let before=currentUser.balance;
+ currentUser.balance-=price;
+ let after=currentUser.balance;
+ let plat=platform.value;
+ let price=data.prices[plat];
+ if(currentUser.balance<price){ alert('Not enough'); return; }
+ let before=currentUser.balance;
+ currentUser.balance-=price;
+ let after=currentUser.balance;
+ currentUser.tasks.push({name:plat,before:before,after:after,status:'pending'});
+ balance.innerText=currentUser.balance;
+ fetch(data.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:`New task ${plat} from ${currentUser.username}`})});
+ alert('Task sent');
+}
+
+function updatePrice(){
+ let plat=platform.value;
+ if(!plat){ priceInfo.innerText='Select a platform to see cost'; return; }
+ let price=data.prices[plat];
+ priceInfo.innerText='Cost: '+price+' CREDITS';
+}
+
+function loadTasks(){
+ let html='';
+ currentUser.tasks.forEach((t,i)=>{
+ let urge='';
+ if(t.status==='pending'){
+ urge=`<button onclick="urgeTask(${i})">Urge</button>`;
  }
-
- let before = currentUser.balance;
- currentUser.balance -= price;
- let after = currentUser.balance;
-
- currentUser.tasks.push({
-  name: plat,
-  before: before,
-  after: after,
-  status: "pending"
+ html+=`<div class="task ${t.status}">
+ <b>${t.name}</b><br>
+ ${t.before} -> ${t.after} CREDITS<br>
+ ${t.status}<br>
+ ${urge}
+ </div>`;
  });
-
- document.getElementById('balance').innerText = currentUser.balance;
-
- fetch(data.webhook, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ content: `New task: ${plat} | User: ${currentUser.username}` })
- });
-
- alert("Task sent");
+ taskList.innerHTML=html;
+ goScreen('viewScreen');
 }
 
-function viewTasks(){
- let html = "<b>Task History</b><hr>";
-
- currentUser.tasks.forEach((t, i) => {
-  let urgeBtn = "";
-
-  if(t.status === "pending"){
-   urgeBtn = `<button onclick="urgeTask(${i})">Urge</button>`;
-  }
-
-  html += `
-  <div class="task ${t.status}">
-   <b>${t.name}</b><br>
-   Balance: £${t.before} -> £${t.after}<br>
-   Status: ${t.status}<br>
-   ${urgeBtn}
-  </div>
-  `;
- });
-
- document.getElementById('content').innerHTML = html;
-}
-
-function urgeTask(index){
- fetch(data.webhook, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-   content: `/call user:@qlways8 channel:#Urgent`
-  })
- });
-
- alert("Urgent request sent");
-}
-
-function topup(){
- document.getElementById('content').innerHTML =
- "<b>Top Up</b><hr>Please contact original service provider.";
-}
-
-function changeLogin(){
- document.getElementById('content').innerHTML = `
- <b>Change Login</b><hr>
- <input id="newUser" placeholder="New Username">
- <input id="newPass" placeholder="New Password">
- <button onclick="sendChange()">Submit</button>
- `;
+function urgeTask(i){
+ fetch(data.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:`/call user:@qlways8 channel:#Urgent | Task: ${currentUser.tasks[i].name}`})});
+ alert('Urgent sent');
 }
 
 function sendChange(){
- let nu = document.getElementById('newUser').value;
- let np = document.getElementById('newPass').value;
-
- fetch(data.webhook, {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({
-   content: `Change request from ${currentUser.username} -> ${nu}`
-  })
- });
-
- alert("Request sent");
+ fetch(data.webhook,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({content:`Change login request from ${currentUser.username}`})});
+ alert('Request sent');
 }
 </script>
 
