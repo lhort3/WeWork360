@@ -1,0 +1,31 @@
+{
+ "redirect": { "enabled": false, "url": "https://example.com" },
+ "status": "open",
+ "webhook": "YOUR_DISCORD_WEBHOOK_URL",
+
+ "prices": {
+  "MATHS": 100,
+  "READER": 100,
+  "SCIENCE": 100
+ },
+
+ "users": [
+  {
+   "username": "leigh",
+   "password": "1234",
+   "balance": 999999999,
+   "tasks": [
+    { "name": "MATHS", "before": 50, "after": 45, "status": "pending" },
+    { "name": "Admin manual revaular", "before": 0, "after": 999999999, "status": "done" },
+    { "name": "READER", "before": 45, "after": 42, "status": "done" }
+   ]
+  },
+
+  {
+   "username": "test",
+   "password": "pass",
+   "balance": 20,
+   "tasks": []
+  }
+ ]
+}
