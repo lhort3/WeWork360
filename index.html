@@ -46,20 +46,159 @@ hr { border:none; border-top:1px solid #ccc; margin:10px 0; }
 </div>
 
 <script>
-let data;
-let currentUser;
+let data = null;
+let currentUser = null;
 
-fetch('https://lhort3.github.io/WeWork360/system.json').then(r=>r.json()).then(j=>{
- data=j;
- if(data.redirect.enabled){ window.location=data.redirect.url; }
- if(data.status=="closed"){
-  document.body.innerHTML="<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
+// ✅ USE RAW LINK (important)
+fetch('https://raw.githubusercontent.com/lhort3/WeWork360/main/system.json')
+.then(r => r.json())
+.then(j => {
+ data = j;
+
+ if(data.redirect.enabled){
+  window.location = data.redirect.url;
+  return;
  }
+
+ if(data.status === "closed"){
+  document.body.innerHTML = "<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
+ }
+})
+.catch(err => {
+ console.error(err);
+ alert("Failed to load system.json");
 });
 
 function login(){
- let u=document.getElementById('user').value;
- let p=document.getElementById('pass').value;
- let user=data.users.find(x=>x.username==u && x.password==p);
- if(!user){ alert("Invalid login"); return; }
+ let u = document.getElementById('user').value;
+ let p = document.getElementById('pass').value;
+
+ if(!data){
+  alert("System not loaded yet");
+  return;
+ }
+
+ let user = data.users.find(x => x.username === u && x.password === p);
+ if(!user){
+  alert("Invalid login");
+  return;
+ }
+
+ currentUser = user;
+
+ document.getElementById('balance').innerText = user.balance;
+ document.getElementById('loginBox').style.display = 'none';
+ document.getElementById('menuBox').style.display = 'block';
+}
+
+function showTask(){
+ document.getElementById('content').innerHTML = `
+ <b>New Task</b><hr>
+ <select id="platform">
+  <option>MATHS</option>
+  <option>READER</option>
+  <option>SCIENCE</option>
+ </select>
+ <div class="small">Price auto deducted</div>
+ <button onclick="assignTask()">Assign Task</button>
+ `;
+}
+
+function assignTask(){
+ let plat = document.getElementById('platform').value;
+ let price = data.prices[plat];
+
+ if(currentUser.balance < price){
+  alert("Not enough balance top up first !!!");
+  return;
+ }
+
+ let before = currentUser.balance;
+ currentUser.balance -= price;
+ let after = currentUser.balance;
+
+ currentUser.tasks.push({
+  name: plat,
+  before: before,
+  after: after,
+  status: "pending"
+ });
+
+ document.getElementById('balance').innerText = currentUser.balance;
+
+ fetch(data.webhook, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ content: `New task: ${plat} | User: ${currentUser.username}` })
+ });
+
+ alert("Task sent");
+}
+
+function viewTasks(){
+ let html = "<b>Task History</b><hr>";
+
+ currentUser.tasks.forEach((t, i) => {
+  let urgeBtn = "";
+
+  if(t.status === "pending"){
+   urgeBtn = `<button onclick="urgeTask(${i})">Urge</button>`;
+  }
+
+  html += `
+  <div class="task ${t.status}">
+   <b>${t.name}</b><br>
+   Balance: £${t.before} -> £${t.after}<br>
+   Status: ${t.status}<br>
+   ${urgeBtn}
+  </div>
+  `;
+ });
+
+ document.getElementById('content').innerHTML = html;
+}
+
+function urgeTask(index){
+ fetch(data.webhook, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+   content: `/call user:@qlways8 channel:#Urgent`
+  })
+ });
+
+ alert("Urgent request sent");
+}
+
+function topup(){
+ document.getElementById('content').innerHTML =
+ "<b>Top Up</b><hr>Please contact original service provider.";
+}
+
+function changeLogin(){
+ document.getElementById('content').innerHTML = `
+ <b>Change Login</b><hr>
+ <input id="newUser" placeholder="New Username">
+ <input id="newPass" placeholder="New Password">
+ <button onclick="sendChange()">Submit</button>
+ `;
+}
+
+function sendChange(){
+ let nu = document.getElementById('newUser').value;
+ let np = document.getElementById('newPass').value;
+
+ fetch(data.webhook, {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({
+   content: `Change request from ${currentUser.username} -> ${nu}`
+  })
+ });
+
+ alert("Request sent");
+}
+</script>
+
+</body>
 </html>
