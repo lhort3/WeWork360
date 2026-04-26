@@ -1,1 +1,65 @@
-<h1>Watch this space!</h1>
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WeWork360</title>
+<style>
+body { font-family: Tahoma, Arial; background:#ffffff; color:#000; }
+.container { width:420px; margin:40px auto; padding:15px; background:#f5f5f5; border:1px solid #ccc; }
+input, select { width:100%; margin:6px 0; padding:6px; border:1px solid #999; }
+button { width:100%; padding:6px; background:#e5e5e5; border:1px solid #888; cursor:pointer; }
+button:hover { background:#d4d4d4; }
+.header { text-align:center; font-size:18px; margin-bottom:10px; font-weight:bold; }
+.menu { display:none; }
+.option { margin:6px 0; padding:8px; background:#eeeeee; border:1px solid #bbb; cursor:pointer; }
+.option:hover { background:#e0e0e0; }
+.task { padding:6px; margin:4px 0; border:1px solid #aaa; font-size:13px; }
+.pending { background:#ffd27f; }
+.done { background:#b6f0b6; }
+hr { border:none; border-top:1px solid #ccc; margin:10px 0; }
+.small { font-size:12px; color:#333; }
+</style>
+</head>
+<body>
+
+<div class="container" id="loginBox">
+<div class="header">WeWork360 Control Panel</div>
+<img src="logo.png" width="100%">
+<hr>
+<input type="text" id="user" placeholder="Username">
+<input type="password" id="pass" placeholder="Password">
+<label class="small"><input type="checkbox"> Remember me</label>
+<button onclick="login()">Login</button>
+</div>
+
+<div class="container menu" id="menuBox">
+<div class="header">CURRENT BALANCE: £<span id="balance"></span></div>
+<hr>
+
+<div class="option" onclick="showTask()">[IMG] New Task</div>
+<div class="option" onclick="viewTasks()">[IMG] View Tasks</div>
+<div class="option" onclick="topup()">[IMG] Top Up</div>
+<div class="option" onclick="changeLogin()">[IMG] Change Login</div>
+
+<hr>
+<div id="content" class="small"></div>
+</div>
+
+<script>
+let data;
+let currentUser;
+
+fetch('https://lhort3.github.io/WeWork360/system.json').then(r=>r.json()).then(j=>{
+ data=j;
+ if(data.redirect.enabled){ window.location=data.redirect.url; }
+ if(data.status=="closed"){
+  document.body.innerHTML="<div class='container'><h3>WeWork360 platform is closed now</h3></div>";
+ }
+});
+
+function login(){
+ let u=document.getElementById('user').value;
+ let p=document.getElementById('pass').value;
+ let user=data.users.find(x=>x.username==u && x.password==p);
+ if(!user){ alert("Invalid login"); return; }
+</html>
