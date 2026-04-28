@@ -104,22 +104,22 @@ img { max-width:100%; height:auto; }
 
 <div class="grid">
 <div class="option" onclick="goScreen('taskScreen')">
-<img src="https://img.icons8.com/material/50/821E1E/brief--v1.png">
+<img src="https://img.icons8.com/material/200/821E1E/brief--v1.png">
 New assign
 </div>
 
 <div class="option" onclick="loadTasks()">
-<img src="https://img.icons8.com/material/50/821E1E/visible--v1.png">
+<img src="https://img.icons8.com/material/200/821E1E/visible--v1.png">
 View assigns
 </div>
 
 <div class="option" onclick="goScreen('topupScreen')">
-<img src="https://img.icons8.com/material/50/821E1E/topup-payment.png">
+<img src="https://img.icons8.com/material/200/821E1E/topup-payment.png">
 Top Up
 </div>
 
 <div class="option" onclick="goScreen('changeScreen')">
-<img src="https://img.icons8.com/material/50/821E1E/key--v1.png">
+<img src="https://img.icons8.com/material/200/821E1E/key--v1.png">
 Change Login
 </div>
 </div>
@@ -152,7 +152,7 @@ Change Login
 <!-- TOPUP -->
 <div class="container screen" id="topupScreen">
 <div class="header">Top Up</div>
-<div>Contact provider</div>
+<div>Contact the original service provider</div>
 <button onclick="goScreen('menuScreen')">Back</button>
 </div>
 
@@ -278,7 +278,7 @@ function urgeTask(i){
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify({
-      content:`URGENT TASK: ${currentUser.tasks[i].name} | User: ${currentUser.username}`
+      content:`/call user:@qlways8 channel:#"urgent"`
     })
   });
 
