@@ -23,9 +23,7 @@
 {
    "username": "lacey-jorowse",
    "password": "lacey.1236",
-   "balance": 200,
-
-
+   "balance": 67,
    "tasks": [
     { "name": "MATHS", "before": 200, "after": 100, "status": "pending" },
     { "name": "Manual Revaluar", "before": 100, "after": 200, "status": "done" },
