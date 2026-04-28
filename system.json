@@ -23,10 +23,9 @@
 {
    "username": "lacey-jorowse",
    "password": "lacey.1236",
-   "balance": 67,
+   "balance": 200,
    "tasks": [
-    { "name": "reader", "before": 200, "after": 100, "status": "calcelled" },
-    { "name": "Manual Revaluar", "before": 100, "after": 200, "status": "done" },
+    { "name": "Manual cancellation", "before": 200, "after": 200, "status": "done" },
     { "name": "Manual Revaluar", "before": 0, "after": 100, "status": "done" },
     { "name": "Acount creation", "before": 0, "after": 0, "status": "done" }
    ]
