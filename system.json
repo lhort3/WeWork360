@@ -4,22 +4,42 @@
  "webhook": "https://discord.com/api/webhooks/1498045163765895350/h7Od4FW4cgtDps81ip0r-P_Xdud6lIuiv-C9YNEtZxesXS6BvHN_rdhJjh9HWB9e8iLs",
 
  "prices": {
-  "MATHS": 100,
+  "MATHS": 300,
   "READER": 100,
-  "SCIENCE": 100
+  "SCIENCE": 300
  },
 
  "users": [
   {
-   "username": "leigh",
-   "password": "1234",
+   "username": "leighlandhorton",
+   "password": "password",
    "balance": 999999999,
    "tasks": [
-    { "name": "MATHS", "before": 50, "after": 45, "status": "pending" },
+    { "name": "Manual Revaluar", "before": -100, "after": 200, "status": "done" },
+    { "name": "Reader", "before": 0, "after": -100, "status": "done" },
+    { "name": "Account creation", "before": 0, "after": 0, "status": "done" }
+   ]
+  },
+{
+   "username": "lacey-jorowse",
+   "password": "lacey.1236",
+   "balance": 100,
+   "tasks": [
+    { "name": "Manual Revaluar", "before": 0, "after": 100, "status": "done" },
+    { "name": "Acount creation", "before": 0, "after": 0, "status": "done" }
+   ]
+  },
+
+{
+   "username": "ameliagriffin",
+   "password": "Harrypotter349951",
+   "balance": 999999999,
+   "tasks": [
     { "name": "Admin manual revaular", "before": 0, "after": 999999999, "status": "done" },
     { "name": "READER", "before": 45, "after": 42, "status": "done" }
    ]
   },
+
 
   {
    "username": "test",
